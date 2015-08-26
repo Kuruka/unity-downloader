@@ -1,0 +1,27 @@
+{
+  "name": "unity-downloader",
+  "version": "1.0.0",
+  "description": "Helps you automate Unity downloads",
+  "main": "index.js",
+  "bin": {
+    "unity-downloader": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "unity",
+    "download"
+  ],
+  "author": "Ron Korving <rkorving@wizcorp.jp>",
+  "license": "MIT",
+  "preferGlobal": true,
+  "dependencies": {
+    "async": "^1.4.2",
+    "chalk": "^1.1.1",
+    "htmlparser2": "^3.8.3",
+    "minimist": "^1.2.0",
+    "mkdirp": "^0.5.1",
+    "semver": "^5.0.1"
+  }
+}

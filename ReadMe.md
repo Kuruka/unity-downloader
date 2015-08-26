@@ -26,8 +26,8 @@ Usage: unity-downloader [options]
 
 Options:
 
-  --url=URL           The URL that will be scraped for downloads (default: http://unity3d.com/get-unity/download/archive).
-  --semver=RANGE      A semver range within which to limit your downloads (default: >= 5.0.0).
+  --url=URL           The URL that will be scraped for downloads (default: http://unity3d.com/get-unity/download/archive)
+  --semver=RANGE      A semver range within which to limit your downloads (default: >= 5.0.0)
   --systems=LIST      For which operating systems to download (default: mac,win)
   --downloads=LIST    Which packages to download (default: unity editor,unity editor 64-bit)
   --out=PATH          Output folder (default: ./)

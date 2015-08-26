@@ -38,8 +38,8 @@ function help() {
     console.log();
     console.log('Options:');
     console.log();
-    console.log('  --url=URL           The URL that will be scraped for downloads (default: ' + defaults.url + ').');
-    console.log('  --semver=RANGE      A semver range within which to limit your downloads (default: ' + defaults.semver + ').');
+    console.log('  --url=URL           The URL that will be scraped for downloads (default: ' + defaults.url + ')');
+    console.log('  --semver=RANGE      A semver range within which to limit your downloads (default: ' + defaults.semver + ')');
     console.log('  --systems=LIST      For which operating systems to download (default: ' + defaults.systems + ')');
     console.log('  --downloads=LIST    Which packages to download (default: ' + defaults.downloads + ')');
     console.log('  --out=PATH          Output folder (default: ' + defaults.out + ')');

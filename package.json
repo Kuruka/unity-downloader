@@ -1,6 +1,6 @@
 {
   "name": "unity-downloader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Helps you automate Unity downloads",
   "main": "index.js",
   "bin": {

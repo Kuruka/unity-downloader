@@ -20,7 +20,7 @@ npm install --global unity-downloader
 ## Usage
 
 ```
-$ ./index.js --help
+$ unity-downloader --help
 
 Usage: unity-downloader [options]
 

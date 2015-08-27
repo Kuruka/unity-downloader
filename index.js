@@ -22,6 +22,7 @@ var defaults = {
     systems: 'mac,win',
     downloads: 'unity editor,unity editor 64-bit',
     out: './',
+    'latest-only': false,
     simulate: false
 };
 
@@ -30,6 +31,7 @@ var versionRange = argv.semver || defaults.semver;
 var systems = (argv.systems || defaults.systems).split(',').map(trim).map(lower);
 var downloads = (argv.downloads || defaults.downloads).split(',').map(trim).map(lower);
 var outputFolder = argv.out || argv._[0] || defaults.out;
+var latestOnly = argv['latest-only'] || defaults['latest-only'];
 var simulate = argv.simulate || defaults.simulate;
 
 function help() {
@@ -40,6 +42,7 @@ function help() {
     console.log();
     console.log('  --url=URL           The URL that will be scraped for downloads (default: ' + defaults.url + ')');
     console.log('  --semver=RANGE      A semver range within which to limit your downloads (default: ' + defaults.semver + ')');
+    console.log('  --latest-only       Flag for downloading only the most recent version in the range (no value, default: ' + (defaults['latest-only'] ? 'on' : 'off') + ')');
     console.log('  --systems=LIST      For which operating systems to download (default: ' + defaults.systems + ')');
     console.log('  --downloads=LIST    Which packages to download (default: ' + defaults.downloads + ')');
     console.log('  --out=PATH          Output folder (default: ' + defaults.out + ')');
@@ -57,6 +60,18 @@ function semverFilter(versions, versionRange) {
     return versions.filter(function (version) {
         return semver.satisfies(version.version, versionRange);
     });
+}
+
+
+function sortVersionsDesc(versions) {
+    versions.sort(function (a, b) {
+        return semver.rcompare(a.version, b.version);
+    });
+}
+
+
+function stripAllButFirst(versions) {
+    versions.splice(1, versions.length);
 }
 
 
@@ -86,6 +101,7 @@ function stripLinksExcept(versions, labels) {
 console.log('Settings:');
 console.log('  - url:', pageUrl);
 console.log('  - semver:', versionRange);
+console.log('  - latest only:', latestOnly ? 'on' : 'off');
 console.log('  - systems:', systems.join(', '));
 console.log('  - downloads:', downloads.join(', '));
 console.log('  - output folder:', outputFolder);
@@ -105,10 +121,16 @@ http.get(pageUrl, function (res) {
     res.on('end', function () {
         versions = extractVersions(pageUrl, data);
         versions = semverFilter(versions, versionRange);
+        sortVersionsDesc(versions);
+
+        if (latestOnly) {
+            stripAllButFirst(versions);
+        }
 
         if (systems) {
             stripSystemsExcept(versions, systems);
         }
+
         stripLinksExcept(versions, downloads);
         downloadVersions(versions, outputFolder, simulate);
     });

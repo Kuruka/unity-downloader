@@ -2,6 +2,10 @@
   "name": "unity-downloader",
   "version": "1.0.2",
   "description": "Helps you automate Unity downloads",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wizcorp/unity-downloader"
+  },
   "main": "index.js",
   "bin": {
     "unity-downloader": "./index.js"

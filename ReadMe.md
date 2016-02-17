@@ -32,6 +32,7 @@ Options:
   --systems=LIST      For which operating systems to download (default: mac,win)
   --downloads=LIST    Which packages to download (default: unity editor,unity editor 64-bit)
   --out=PATH          Output folder (default: ./)
+  --status=PATH       Output file for single version download info (may contain ${VERSION}, eg: '${VERSION}.json'), default: none)
   --simulate          Flag for doing a simulation run (no value, default: off)
   --help              This help output
 ```

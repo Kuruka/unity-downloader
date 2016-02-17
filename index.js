@@ -31,6 +31,7 @@ var versionRange = argv.semver || defaults.semver;
 var systems = (argv.systems || defaults.systems).split(',').map(trim).map(lower);
 var downloads = (argv.downloads || defaults.downloads).split(',').map(trim).map(lower);
 var outputFolder = argv.out || argv._[0] || defaults.out;
+var statusPath = argv.status || null;
 var latestOnly = argv['latest-only'] || defaults['latest-only'];
 var simulate = argv.simulate || defaults.simulate;
 
@@ -46,6 +47,7 @@ function help() {
     console.log('  --systems=LIST      For which operating systems to download (default: ' + defaults.systems + ')');
     console.log('  --downloads=LIST    Which packages to download (default: ' + defaults.downloads + ')');
     console.log('  --out=PATH          Output folder (default: ' + defaults.out + ')');
+    console.log('  --status=PATH       Output file for single version download info (may contain ${VERSION}, eg: \'${VERSION}.json\'), default: none)');
     console.log('  --simulate          Flag for doing a simulation run (no value, default: ' + (defaults.simulate ? 'on' : 'off') + ')');
     console.log('  --help              This help output');
     console.log();
@@ -105,6 +107,7 @@ console.log('  - latest only:', latestOnly ? 'on' : 'off');
 console.log('  - systems:', systems.join(', '));
 console.log('  - downloads:', downloads.join(', '));
 console.log('  - output folder:', outputFolder);
+console.log('  - status output file:', statusPath || 'none')
 console.log('  - run as simulation:', simulate ? 'on' : 'off');
 console.log();
 console.log('Scraping for links at', pageUrl);
@@ -132,6 +135,6 @@ http.get(pageUrl, function (res) {
         }
 
         stripLinksExcept(versions, downloads);
-        downloadVersions(versions, outputFolder, simulate);
+        downloadVersions(versions, outputFolder, simulate, statusPath);
     });
 });

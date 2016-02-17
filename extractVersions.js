@@ -6,6 +6,7 @@ function Version(version) {
     this.version = version;
     this.notes = null;
     this.links = {};
+    this.downloads = {};
 }
 
 

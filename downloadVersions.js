@@ -2,6 +2,7 @@ var async = require('async');
 var basename = require('path').basename;
 var pathJoin = require('path').join;
 var urlParse = require('url').parse;
+var writeFile = require('fs').writeFile;
 var fileExists = require('fs').exists;
 var createWriteStream = require('fs').createWriteStream;
 var unlink = require('fs').unlink;
@@ -54,8 +55,8 @@ function downloadFile(url, path, simulate, cb) {
 }
 
 
-function downloadForSystem(system, links, outputFolder, simulate, cb) {
-    var folder = pathJoin(outputFolder, system);
+function downloadForSystem(system, links, folder, simulate, cb) {
+    var paths = [];
 
     function startDownloads() {
         async.forEachOfSeries(
@@ -65,9 +66,18 @@ function downloadForSystem(system, links, outputFolder, simulate, cb) {
 
                 console.log(': Downloading', system, label, 'to', path);
 
-                downloadFile(url, path, simulate, cb);
+                downloadFile(url, path, simulate, function (error) {
+                    if (error) {
+                        return cb(error);
+                    }
+
+                    paths.push(path);
+                    return cb();
+                });
             },
-            cb
+            function (error) {
+                cb(error, paths);
+            }
         );
     }
 
@@ -85,7 +95,7 @@ function downloadForSystem(system, links, outputFolder, simulate, cb) {
 }
 
 
-function downloadVersion(version, outputFolder, simulate, cb) {
+function downloadVersion(version, outputFolder, simulate, statusPath, cb) {
     console.log('');
 
     if (version.notes) {
@@ -97,18 +107,40 @@ function downloadVersion(version, outputFolder, simulate, cb) {
     async.forEachOfSeries(
         version.links,
         function (links, system, cb) {
-            downloadForSystem(system, links, outputFolder, simulate, cb);
+            var folder = pathJoin(outputFolder, system);
+
+            downloadForSystem(system, links, folder, simulate, function (error, paths) {
+                if (error) {
+                    return cb(error);
+                }
+
+                version.downloads[system] = paths;
+
+                return cb();
+            });
         },
-        cb
+        function (error) {
+            if (error) {
+                return cb(error);
+            }
+
+            if (!statusPath) {
+                return cb();
+            }
+
+            statusPath = statusPath.replace('${VERSION}', version.version);
+
+            writeFile(statusPath, JSON.stringify(version, null, '  '), cb);
+        }
     );
 }
 
 
-function downloadVersions(versions, outputFolder, simulate) {
+function downloadVersions(versions, outputFolder, simulate, statusPath) {
     async.eachSeries(
         versions,
         function (version, cb) {
-            downloadVersion(version, outputFolder, simulate, cb);
+            downloadVersion(version, outputFolder, simulate, statusPath, cb);
         },
         function (error) {
             if (error) {

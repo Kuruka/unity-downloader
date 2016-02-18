@@ -20,13 +20,13 @@ function downloadFile(url, path, simulate, cb) {
     fileExists(path, function (exists) {
         if (exists) {
             console.log('  file already exists (skipping)');
-            return cb();
+            return cb(null, false);
         }
 
         if (simulate) {
             return setTimeout(function () {
                 console.log('  completed downloading');
-                cb();
+                cb(null, true);
             }, 100);
         }
 
@@ -35,21 +35,23 @@ function downloadFile(url, path, simulate, cb) {
         var req = httpGet(url, function (res) {
             if (res.statusCode < 200 || res.statusCode > 299) {
                 console.log(chalk.red('  error downloading: HTTP ' + res.statusCode));
-                return cb();
+                return cb(null, false);
             }
 
             res.pipe(outStream);
 
             outStream.on('finish', function () {
                 console.log('  completed downloading');
-                outStream.close(cb);
+                outStream.close(function (error) {
+                    cb(error, true);
+                });
             })
         });
 
         req.on('error', function (error) {
             console.log(chalk.red('  error downloading: ' + error.message));
             unlink(path);
-            cb();
+            cb(error, false);
         });
     });
 }
@@ -66,12 +68,16 @@ function downloadForSystem(system, links, folder, simulate, cb) {
 
                 console.log(': Downloading', system, label, 'to', path);
 
-                downloadFile(url, path, simulate, function (error) {
+                downloadFile(url, path, simulate, function (error, wasDownloaded) {
                     if (error) {
-                        return cb(error);
+                        // continue execution even if one file fails to download
+                        return cb();
                     }
 
-                    paths.push(path);
+                    if (wasDownloaded) {
+                        paths.push(path);
+                    }
+
                     return cb();
                 });
             },
@@ -104,6 +110,8 @@ function downloadVersion(version, outputFolder, simulate, statusPath, cb) {
         console.log(chalk.bold('* Downloading Unity ' + version.version + ' packages (No release notes)'));
     }
 
+    var wasDownloaded = false;
+
     async.forEachOfSeries(
         version.links,
         function (links, system, cb) {
@@ -114,7 +122,10 @@ function downloadVersion(version, outputFolder, simulate, statusPath, cb) {
                     return cb(error);
                 }
 
-                version.downloads[system] = paths;
+                if (paths.length > 0) {
+                    wasDownloaded = true;
+                    version.downloads[system] = paths;
+                }
 
                 return cb();
             });
@@ -124,7 +135,7 @@ function downloadVersion(version, outputFolder, simulate, statusPath, cb) {
                 return cb(error);
             }
 
-            if (!statusPath) {
+            if (!wasDownloaded || !statusPath) {
                 return cb();
             }
 
